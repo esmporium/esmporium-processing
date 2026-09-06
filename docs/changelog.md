@@ -20,3 +20,9 @@ from the examples given in that link.
 -->
 
 <!-- towncrier release notes start -->
+
+## esmporium processing v0.1.1 (2026-09-06)
+
+### 🔧 Trivial/Internal Changes
+
+- [#1](https://github.com/esmporium/esmporium-processing/pull/1), [#2](https://github.com/esmporium/esmporium-processing/pull/2)
