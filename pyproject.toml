@@ -1,6 +1,6 @@
 [project]
 name = "esmporium-processing"
-version = "0.1.1"
+version = "0.1.1.post1"
 description = "Processing of datasets retrieved with esmporium (https://github.com/esmporium/esmporium)."
 authors = [
     { name = "Zebedee Nicholls", email = "zebedee.nicholls@climate-energy-college.org" },

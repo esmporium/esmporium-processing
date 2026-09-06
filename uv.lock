@@ -535,7 +535,7 @@ wheels = [
 
 [[package]]
 name = "esmporium-processing"
-version = "0.1.1"
+version = "0.1.1.post1"
 source = { editable = "." }
 
 [package.dev-dependencies]
