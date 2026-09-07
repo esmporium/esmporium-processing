@@ -178,3 +178,102 @@ Inputs(
     # but could be useful for stitching if you only want to stitch some variables, not all.
 )
 ```
+
+## Use cases
+
+### TCR calculation
+
+Need tas monthly for 1pctCO2 and piControl. piControl has to span at least the same length as 1pctCO2 (ideally longer). Cell areas are desirable but optional.
+
+### ECS calculation
+
+Need tas, rsdt, rlut and rsut for abrupt-4xCO2 and piControl. piControl has to span at least the same length as abrupt-4xCO2 (ideally longer). Cell areas are desirable but optional.
+
+### TCRE calculation
+
+#### flat10
+
+Need tas monthly for esm-flat10 and piControl. piControl has to span at least the same length as esm-flat10 (ideally longer). Cell areas are desirable but optional.
+
+#### 1pctCO2
+
+Need tas and fgco2 and nbp monthly for 1pctCO2 and piControl. piControl has to span at least the same length as 1pctCO2 (ideally longer). Cell areas are desirable but optional.
+
+[Method: use fgco2 and nbp and assumed change in atmospheric CO2 to get inferred fossil carbon flux, then use that plus tas to get TCRE]
+
+### ZEC
+
+#### flat10
+
+Need tas monthly for esm-flat10-zec and piControl. piControl has to span at least the same length as esm-flat10-zec (ideally longer). Cell areas are desirable but optional.
+
+#### 1pctCO2
+
+NA in CMIP7 I think (no cessation experiments, no bell experiments ?)
+
+Need tas and fgco2 and nbp monthly for 1pctCO2 branch experiments and piControl. piControl has to span at least the same length as 1pctCO2 (ideally longer). Cell areas are desirable but optional.
+
+[Method: use fgco2 and nbp and assumed change in atmospheric CO2 to get inferred fossil carbon flux, then use that plus tas to get TCRE]
+
+#### Bell experiments
+
+Need tas monthly for 1pctCO2 branch experiments and piControl. piControl has to span at least the same length as the bell experiment (ideally longer). Cell areas are desirable but optional.
+
+[Method note: you have to have the piControl. Without it, you can misdiagnose ZEC (assume it is flat when actually it wouldn't be flat if you accounted for model drift)]
+
+### Other calibration stuff
+
+tas monthly for esm-flat10-cdr and piControl. piControl has to span at least same length as esm-flat10-cdr (ideally longer). Cell areas are desirable but optional.
+
+### ERF calculation
+
+Either of the two below can work
+
+#### transient
+
+Experiment: piClim-control plus any of piClim-histall, piClim-histaer. Variables: rsut, rlut, rsdt (or rndt or whatever it is that is the pre-calculated difference of these)
+
+Ideally piClim-control extends as long as the other experiments. If it doesn't, have to somehow extend.
+
+[Method: subtract rndt from e.g. piClim-histall from same from piClim-control and get ERF (logic is that rndt = ERF + lambda * T, run two experiments with same T (prescribed), assume that ERF is zero in piClim-control so then taking the difference between the two experiments leaves delta rndt = ERF)]
+
+#### time slice
+
+Experiment: piClim-control plus any of piClim-4xCO2, piClim-aer, piClim-anthro, piClim-CH4, piClim-N2O, piClim-NOx, piClim-ODS, piClim-SO2. Variables: rsut, rlut, rsdt (or rndt or whatever it is that is the pre-calculated difference of these)
+
+[Method: subtract rndt from e.g. piClim-4xCO2 from same from piClim-control and get ERF (logic is that rndt = ERF + lambda * T, run two experiments with same T (prescribed), assume that ERF is zero in piClim-control so then taking the difference between the two experiments leaves delta rndt = ERF).
+Time slice experiments so you only get the ERF for the particular period in time at which the forcing was taken, not a transient ERF like the above]
+
+### tas scenario calculation including anomalies
+
+Need tas monthly for scenarios plus historical plus piControl. piControl ideally spans same length as historical plus scenarios. Cell areas are desirable but optional.
+
+### GCMagicc
+
+Daily or monthly
+
+Variables (ideally all, @malte is there a minimum set/combination of sets?): clt, evspsbl, hurs, huss, mrso, pr, psl, rlut, rsds, rsdt, rsut, rtmt, sfcWind, tas, tasmax, tasmin, ts, uas, va
+
+Experiments (any): historical, esm-hist, scenarios, abrupt-*, 1pctCO2, piControl (@malte others?)
+
+### carbon cycle closure checking/carbon cycle calibration
+
+@Gang I guess carbon pools and fluxes? Are there multiple options for combinations of variables e.g. "I need to {A, B, C} or {A, D, E}, but I don't need all of {A, B, C, D, E}"?
+
+Cell areas desirable but optional? Surface land fractions required?
+
+Experiments (any): historical, esm-hist, scenarios, abrupt-*, 1pctCO2, piControl (@Gang others?)
+
+### Energy balance
+
+Need rsdt, rlut, rsut, hfds and ocean surface fraction. Cell areas desirable but optional.
+
+Experiments, any of: piControl, historical, scenarios, abrupt-*, 1pctCO2, ...
+
+### pattern scaling
+
+Same as tas scenario calculation?
+
+### pattern effect
+
+Need tas monthly for historical
