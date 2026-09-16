@@ -10,6 +10,8 @@ requires-python = ">=3.10"
 dependencies = [
     # If you use numpy, we suggest pinning to >2.1.0
     # based on the minimum supported python version
+    "esmporium",
+    "pydantic>=2.7",
 ]
 readme = "README.md"
 classifiers = [
@@ -586,6 +588,9 @@ source-include = [
     "LICENCE",
 ]
 
+[tool.uv.sources]
+esmporium = { git = "https://github.com/esmporium/esmporium", rev = "211a671bc631425f21bfdcdeab7dbc1a03e1af47" }
+
 [tool.coverage.run]
 source = ["esmporium_processing"]
 branch = true
@@ -626,6 +631,8 @@ formats = "ipynb,py:percent"
 addopts = [
     "--import-mode=importlib",
 ]
+# Lets tests import shared helper modules, e.g. `tests.unit.requirements.use_cases`
+pythonpath = ["."]
 
 [tool.ruff]
 src = [
