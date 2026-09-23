@@ -47,7 +47,7 @@ database-backed catalogue is gated on PR6 (parent links) and PR7 (file informati
 
 | PR | Concept added | src | tests | Use cases unlocked |
 |---|---|---|---|---|
-| R0 | The design note, as docs | ~300 | — | — |
+| R0 | The design note, as docs including ascii or other plain text diagram(s) | ~300 | — | — |
 | R1 | Entries, facets and matching | ~310 | ~160 | — |
 | R2 | `Leaf`, `all_of`, `Requirement`, `.where()` | ~565 | ~200 | — |
 | R3 | **`solve` — end to end works here** | ~450 | ~475 | 14 |
@@ -73,6 +73,8 @@ the whole thing.
 | Use cases | Grown PR by PR inside esmporium's tests |
 | Spelling | British English: `Catalogue`, `CatalogueEntry`, `InMemoryCatalogue`, `catalogue.py` |
 
+Need to database-backed catalogue at some point, but requires doing some esmporium work yet so isn't part of this translation step.
+
 ### Why `CatalogueEntry` and not `DatasetFacets`
 
 `DatasetFacets` (`esmporium/search/result_parsing.py`) already mirrors `Dataset`'s facet
@@ -86,6 +88,7 @@ parent link, aux link, metadata lookup and error message keys off it — and a d
 *open* `extra`, which is the documented home for project-specific facets used by `group_by`,
 `prefer` and auxiliary matching. Merging the two gives one class whose `id` is `None` half the
 time and whose `extra` must be forbidden on one path and open on the other.
+(Let's think about whether we call this `extra` or something else and how we handle it exactly.)
 
 Inheriting is wrong for a smaller reason: `DatasetFacets` is `DATASET_FACET_COLUMNS` *plus*
 `id_project_specific`, whereas `CatalogueEntry.facet()` answers only for
@@ -124,6 +127,7 @@ prototype could ignore. Listed so that anyone diffing against the prototype is n
    may import `esmporium.query` and `DATASET_FACET_COLUMNS` from `esmporium.db.schema`, and
    nothing else from `esmporium.search` or `esmporium.db`. Port the AST walk from
    `tests/unit/requirements/test_use_cases.py` with the allow-list flipped.
+   Unclear why we need this, maybe remove (at least chek).
 5. **The `atmos`/`land`/`ocean` test helpers start auxiliary-free** and gain their `Aux` lists
    at R10. Six lines change in one helper module; the twenty use cases themselves never change.
 
@@ -195,6 +199,8 @@ auxiliary-free `atmos`/`land`/`ocean` helpers, the alias tuples (`CONTROL`, `SCE
 `ABRUPT`, …), and `test_use_cases.py::test_use_case` parametrised over the `USE_CASES` dict —
 round-trip, hash, and solve against `satisfying_catalogue`. Port `satisfying_catalogue` in its
 `find`-only form; it grows a branch per PR alongside the feature it serves.
+[We'll think about all these helpers. Lots of them either obscure what is actually going on,
+or are things we can just put in the package so there'll be some thinking here.]
 
 Tests: `test_all_satisfied`, `test_required_variable_missing`, `test_ambiguous_grids_and_prefer`,
 `test_ambiguous_despite_prefer_says_what_was_preferred`, `test_explanation_is_readable`,
@@ -348,6 +354,9 @@ Tests: `test_ecs`, `test_gcmagicc_includes_every_alternative_and_optional`,
 
 This is also where the flow gets documented end to end: `to_search_plan` → esmporium searches
 (`QueryCollection`, PR3.7) → parent links (PR6) → `solve`.
+[As soon as this and downloading lands, I would like to spin up and start doing tracking and downloading for scenario tas
+(but only following parents back up to historical, not piControl):
+I'm going to need it for a paper and it's a nice simple use case.]
 
 ### R12 — Retire the prototype
 
@@ -381,12 +390,13 @@ esmporium's docs.
 - **Linking from `cell_measures`** at ingestion, which is what makes `Aux(via="link")` the
   default rather than the fallback.
 - **Backtracking.** Solving stays greedy: a choice made for one leaf is never revisited to
-  satisfy another.
+  satisfy another. [TODO: clarify what this means]
 - **Narrowing auxiliary searches.** Auxiliary queries inherit nothing, so they find fx data for
   every model. If that proves too broad, narrow first and widen only when nothing is found, the
-  way `ancestry_until` is handled.
-- **Calendars.** `time_range` and `branch_time_in_parent` stay plain fractional years.
+  way `ancestry_until` is handled. [I'm not convinced the logic of this is right, let's see when we get to auxiliary]
+- **Calendars.** `time_range` and `branch_time_in_parent` stay plain fractional years. [Fine and probably simplest]
 - **Trust when loading.** Loading a serialised requirement imports constraint classes by name,
   so only load requirements you trust. Worth a docstring note, not a mechanism, for now.
+  [We might be able to do something a bit safer with a specific loading function in the DB, let's see]
 - **The `From(...)` / `GlobalMean` annotation layer** from `PLAN-LOAD-CLAUDE.md`, which is
   esmporium-processing's side of the boundary.
