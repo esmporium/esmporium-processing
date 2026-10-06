@@ -222,7 +222,7 @@ If this runs long, move the `use_cases.py` seed to R4; the skeleton itself is ~4
 
 Here is the first step to combining search and requirement logic. Update `search` to take a requirement, instead of a `QueryProtocol`. This will allow us to start performing live ESGF searches for simple use cases on CMIP7 data, to track what is currently available, what will be available in future (what was not satisfied becomes satisfied on another search). This will also mean we need to add a catalogue that is backed by our database, so we can test this live, rather than than only using the InMemoryCatalogue (we will keep the InMemoryCatalogue for testing, likely forever). We may need to update the catalogue protocol class too to make this work. If we need to make such a change, that is ok.
 
-This PR will alter catalogue and search test logic. 
+This PR will alter search test logic and may alter catalogue test logic. It will require us to add a database-backed catalogue and associated tests (potentially we should split this in three: 1) alter search to take a requirement 2) add a database-backed catalogue 3) add integration tests of specifying a requirement, performing a search (which saves everything it gets in a dumb way, rather than trying to be smart and only saving what is actually required) and then getting the trees which match the requirement using the database-backed catalogue).
 
 
 ### R5 — `Ancestors` lineage
