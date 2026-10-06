@@ -220,7 +220,7 @@ If this runs long, move the `use_cases.py` seed to R4; the skeleton itself is ~4
 
 ### R4 — `search` takes a `requirement`
 
-Here is the first step to combining search and requirement logic. Update `search` to take a requirement, instead of a `QueryProtocol`. This will allow us to start performing live ESGF searches for simple use cases on CMIP7 data, to track what is currently available, what will be available in future (what was not satisfied becomes satisfied on another search). This will also lead to changes in `catalogue` to search through the database to identify what exists (??) rather than the InMemoryCatalogue (although we will have to keep the InMemoryCatalogue until all Rx merges land). 
+Here is the first step to combining search and requirement logic. Update `search` to take a requirement, instead of a `QueryProtocol`. This will allow us to start performing live ESGF searches for simple use cases on CMIP7 data, to track what is currently available, what will be available in future (what was not satisfied becomes satisfied on another search). This will also mean we need to add a catalogue that is backed by our database, so we can test this live, rather than than only using the InMemoryCatalogue (we will keep the InMemoryCatalogue for testing, likely forever). We may need to update the catalogue protocol class too to make this work. If we need to make such a change, that is ok.
 
 This PR will alter catalogue and search test logic. 
 
