@@ -5,6 +5,14 @@ How the prototype in `src/esmporium_processing/requirements/` becomes
 
 Written: 2026-09-16.
 
+## Claude note:
+
+We are in the developement phase and over the course of this plan we will be making changes
+and updates to the database and schema. You do not need to worry at all about breaking the 
+API or database caused by migrations, because there are no users of this package. You have 
+full freedom because the plans to build up the package into a working prototype will require 
+breaking the current database logic. Please keep this in mind for all future prompts. 
+
 ## Context
 
 `PLAN-REQUIREMENTS.md` says where this is going: **requirements move into esmporium**, which
@@ -51,15 +59,16 @@ database-backed catalogue is gated on PR6 (parent links) and PR7 (file informati
 | R1 | Entries, facets and matching | ~310 | ~160 | — |
 | R2 | `Leaf`, `all_of`, `Requirement`, `.where()` | ~565 | ~200 | — |
 | R3 | **`solve` — end to end works here** | ~450 | ~475 | 14 |
-| R4 | `Ancestors` lineage | ~325 | ~260 | 15, 17 |
-| R5 | The `Constraint` protocol (no shipped checks) | ~425 | ~230 | — |
-| R6 | `Covers` | ~190 | ~280 | 01, 03, 04, 05, 11 |
-| R7 | `any_of`, `optional` | ~235 | ~300 | 06, 07, 08, 12, 18 |
-| R8 | `namespace`, `SameTimeRange` | ~215 | ~270 | 02, 16, 16a |
-| R9 | `Sibling` | ~110 | ~170 | 09, 10 |
-| R10 | `Aux` | ~280 | ~400 | 13, 19 |
-| R11 | `to_search_plan` | ~150 | ~135 | — |
-| R12 | Retire the prototype | — | — | — |
+| R4 | `to_search_plan` | ~150 | ~135 | — 
+| R5 | `Ancestors` lineage | ~325 | ~260 | 15, 17 |
+| R6 | The `Constraint` protocol (no shipped checks) | ~425 | ~230 | — |
+| R7 | `Covers` | ~190 | ~280 | 01, 03, 04, 05, 11 |
+| R8 | `any_of`, `optional` | ~235 | ~300 | 06, 07, 08, 12, 18 |
+| R9 | `namespace`, `SameTimeRange` | ~215 | ~270 | 02, 16, 16a |
+| R10 | `Sibling` | ~110 | ~170 | 09, 10 |
+| R11 | `Aux` | ~280 | ~400 | 13, 19 |
+| R12 | `to_search_plan` |
+| R13 | Retire the prototype | — | — | — |
 
 Totals: ~3 255 src lines against the prototype's 3 305 — a useful check that the slices cover
 the whole thing.
@@ -209,7 +218,14 @@ Tests: `test_all_satisfied`, `test_required_variable_missing`, `test_ambiguous_g
 If this runs long, move the `use_cases.py` seed to R4; the skeleton itself is ~450 src and
 ~250 test lines.
 
-### R4 — `Ancestors` lineage
+### R4 — `search` takes a `requirement`
+
+Here is the first step to combining search and requirement logic. Update `search` to take a requirement, instead of a `QueryProtocol`. This will allow us to start performing live ESGF searches for simple use cases on CMIP7 data, to track what is currently available, what will be available in future (what was not satisfied becomes satisfied on another search). This will also lead to changes in `catalogue` to search through the database to identify what exists (??) rather than the InMemoryCatalogue (although we will have to keep the InMemoryCatalogue until all Rx merges land). 
+
+This PR will alter catalogue and search test logic. 
+
+
+### R5 — `Ancestors` lineage
 
 - `relations.py` (new): `RELATION_MODEL_CONFIG`, `Ancestors`, and `Lineage` with `index_of`
   (deviation 2).
@@ -231,7 +247,7 @@ Tests: `test_branch_chain_back_to_picontrol`, `test_bell_is_rooted_in_esm_picont
 
 Use cases: `15-pattern-scaling`, `17-etccdi` — both have a lineage and no constraints.
 
-### R5 — The `Constraint` protocol, with nothing shipped
+### R6 — The `Constraint` protocol, with nothing shipped
 
 - `constraints.py` (new): `Pass`/`Degraded`/`Fail`/`Outcome`, `GroupView`, the `Constraint`
   protocol, `NotAConstraintError`, `NotSerialisableConstraintError`, `_load_constraint`,
@@ -252,7 +268,7 @@ Tests: `test_user_defined_constraint`, `test_missing_metadata`,
 `test_constraint_which_is_not_a_pydantic_model`, `test_round_trip_user_defined_constraint`,
 `test_with_lineage_and_with_constraints_reach_every_leaf`.
 
-### R6 — `Covers`
+### R7 — `Covers`
 
 `constraints.py`: `TIME_RANGE`, `BRANCH_TIME_IN_PARENT`, `_as_year`, `_as_time_range`,
 `Covers`, `_covers`. Carry the prototype's in-code note that branch-time handling needs to
@@ -266,7 +282,7 @@ Tests: `test_covers_calendar`, `test_covers_branch_needs_ancestor`, `test_covers
 Use cases: `01-tcr`, `03-tcre-flat10`, `04-tcre-1pct`, `05-zec-flat10`,
 `11-tas-scenario-anomalies`, plus `TO_CONTROL`, `CONTROL_COVERS` and `CONTROL_IDEALLY_COVERS`.
 
-### R7 — `any_of`, `optional`
+### R8 — `any_of`, `optional`
 
 - `tree.py`: `AnyOf` (`min_length=2`), `OptionalNode`, `any_of`, `optional`, and the new
   branches in `apply_to_leaves`, `walk_leaves` and `role_paths`.
@@ -285,7 +301,7 @@ Tests: `test_alternative_chosen_in_order`, `test_alternative_applies_to_whole_li
 
 Use cases: `06-zec-1pct`, `07-zec-bell`, `08-flat10-cdr`, `12-gcmagicc`, `18-amoc`.
 
-### R8 — `namespace` and cross-leaf checks
+### R9 — `namespace` and cross-leaf checks
 
 - `tree.py`: `Namespace`, `namespace()`, the name validator, role prefixing.
 - `solve.py`: `_eval_namespace` and the namespace-scoped `GroupView`.
@@ -306,7 +322,7 @@ round-tripping whole.
 
 Use cases: `02-ecs`, `16-carbon-closure`, `16a-carbon-calibration`.
 
-### R9 — `Sibling`
+### R10 — `Sibling`
 
 `relations.py`: `Sibling`, `sibling_query` (deviation 3). `tree.py`: `LineageRelation` becomes
 a real discriminated union on `kind`. `solve.py`: `_sibling_lineage`.
@@ -315,7 +331,7 @@ Tests: `test_erf_control_found_as_sibling`, `test_lineage_kinds_round_trip`.
 
 Use cases: `09-erf-transient`, `10-erf-timeslice`.
 
-### R10 — `Aux`
+### R11 — `Aux`
 
 - `relations.py`: `MatchLevels`, `STRICT_MATCH`, `Aux` (`role_name`, `required`, `match`,
   `via`, `also_for_lineage`) and its validators.
@@ -342,8 +358,7 @@ Use cases: `13-energy-balance`, `19-sea-ice`. All twenty now build and solve.
 If this runs long, split at the `via` boundary: R10a is `via="match"` with match levels and
 required-versus-optional; R10b adds `via="link"` and `also_for_lineage`.
 
-### R11 — `to_search_plan`
-
+### R12 - `to_search_plan`
 `compile.py`: `SearchPlan`, `to_search_plan`, `merge_on_variable`, `_key_without_variable`,
 importing `sibling_query` from `relations`. Add the `to_search_plan` assertion to
 `test_use_case`, so all twenty are checked to compile as well as solve.
@@ -358,7 +373,7 @@ This is also where the flow gets documented end to end: `to_search_plan` → esm
 (but only following parents back up to historical, not piControl):
 I'm going to need it for a paper and it's a nice simple use case.]
 
-### R12 — Retire the prototype
+### R13 — Retire the prototype
 
 In esmporium-processing: delete `src/esmporium_processing/requirements/` and
 `tests/unit/requirements/`, bump the esmporium dependency, and import `esmporium.requirements`
